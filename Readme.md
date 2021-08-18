@@ -1,10 +1,7 @@
-# Lunchboard
+# Lunchboard [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/asmaier/lunchboard/main/lunchboard.py)
+
 
 A streamlit app showing a map of lunch places around the office.
 
-# Development Notes
-To generate the `requirements.txt` file from
-the `Pipfile` do the following:
 
-    pipenv lock --requirements > requirements.txt
 
