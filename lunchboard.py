@@ -5,9 +5,15 @@ import folium
 from geopy import distance
 from geopy.geocoders import Nominatim
 
-# center on *UM
 geolocator = Nominatim(user_agent="lunchboard")
-location = geolocator.geocode("Grolmanstr. 40, 10623 Berlin")
+
+@st.cache
+def compute_location(address):
+    return geolocator.geocode(address)
+
+
+# center on *UM
+location = compute_location("Grolmanstr. 40, 10623 Berlin")
 UM = (location.latitude, location.longitude)
 
 m = folium.Map(location=UM, zoom_start=16)
@@ -27,7 +33,7 @@ for restaurant in restaurants:
     address = restaurant[1]
     tags = ", ".join(entry for entry in restaurant[2])
 
-    location = geolocator.geocode(address)
+    location = compute_location(address)
     distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
 
     # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
