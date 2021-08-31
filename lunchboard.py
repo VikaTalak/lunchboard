@@ -5,6 +5,11 @@ import folium
 from geopy import distance
 from geopy.geocoders import Nominatim
 
+
+# Inspired by
+# - https://docs.streamlit.io/en/stable/tutorial/visualize_rent_prices_with_Streamlit.html
+# - https://www.linkedin.com/pulse/rapidly-build-apps-using-streamlit-python-jack-smart
+
 geolocator = Nominatim(user_agent="lunchboard")
 
 @st.cache
@@ -26,20 +31,31 @@ folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add
 # list of restaurants
 restaurants = [("Elephant", "Fasanenstraße 15, 10623 Berlin", ("Thai", "€€")),
                ("Café Bleibtreu", "Bleibtreustraße 45, 10623 Berlin", ("German", "€")),
-               ("Berliner Kaffeerösterei", "Uhlandstraße 173/174, 10719 Berlin", ("Café", "€€"))]
+               ("Berliner Kaffeerösterei", "Uhlandstraße 173/174, 10719 Berlin", ("Café", "€€")),
+               ("Zaim Falafel", "Kantstraße 25, 10623 Berlin", ("Libanese", "€"))]
+
+
+tags = set()
+for restaurant in restaurants:
+    for entry in restaurant[2]:
+        tags.add(entry)
+
+st.sidebar.title("Select")
+filter = st.sidebar.multiselect('Type of restaurant', tags, default=None)
 
 for restaurant in restaurants:
-    name = restaurant[0]
-    address = restaurant[1]
-    tags = ", ".join(entry for entry in restaurant[2])
+    if set(filter).issubset(set(restaurant[2])):
+        name = restaurant[0]
+        address = restaurant[1]
+        tags = ", ".join(entry for entry in restaurant[2])
 
-    location = compute_location(address)
-    distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
+        location = compute_location(address)
+        distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
 
-    # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
-    html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags}</li><li>{distance_km:.2f} km</li></ul>'
-    popup = folium.Popup(html)
-    folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
+        # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
+        html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags}</li><li>{distance_km:.2f} km</li></ul>'
+        popup = folium.Popup(html)
+        folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
 
 
 st.title("Unbelievable Lunchboard")
