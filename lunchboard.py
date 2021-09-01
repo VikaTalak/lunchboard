@@ -35,10 +35,11 @@ m = folium.Map(location=UM, zoom_start=15)
 popup = folium.Popup("<h4>*UM</h4>")
 folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add_to(m)
 
-
+# read in dataframe of restaurants
 df = read_csv("restaurants_lunch.csv")
-restaurants = df[["Name", "Address", "Tags", "Price"]].values.tolist()
+restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating"]].values.tolist()
 
+# compute list of tags
 tags = set()
 for restaurant in restaurants:
     for entry in restaurant[2].split(","):
@@ -61,16 +62,20 @@ if price2:
 if price3:
     prices.add("€€€")
 
+ratings = st.sidebar.slider("Google rating", 0.0, 5.0, (0.0, 5.0), 0.1, format="%.1f")
+
+# Filter list of restaurants and plot markers on the map
 for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
     price = restaurant[3]
+    rating = float(restaurant[4].replace(',', '.'))
 
-    if price in prices:
+    if price in prices and ratings[0] < rating < ratings[1] :
         tags = [entry.strip() for entry in restaurant[2].split(",")]
 
         if set(filter).issubset(set(tags)):
-            tags_string = ", ".join(tags)
+            tags_string = ", ".join(tags) + f", {price}"
 
             location = compute_location(address)
             if location:
@@ -78,7 +83,7 @@ for restaurant in restaurants:
                 distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
 
                 # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
-                html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>{distance_km:.2f} km</li></ul>'
+                html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance_km:.2f} km</li></ul>'
                 popup = folium.Popup(html)
                 folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
             else:
