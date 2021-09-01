@@ -71,7 +71,7 @@ for restaurant in restaurants:
     price = restaurant[3]
     rating = float(restaurant[4].replace(',', '.'))
 
-    if price in prices and ratings[0] < rating < ratings[1] :
+    if price in prices and ratings[0] <= rating <= ratings[1]:
         tags = [entry.strip() for entry in restaurant[2].split(",")]
 
         if set(filter).issubset(set(tags)):
