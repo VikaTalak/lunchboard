@@ -37,7 +37,7 @@ folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add
 
 
 df = read_csv("restaurants_lunch.csv")
-restaurants = df[["Name", "Address", "Tags"]].values.tolist()
+restaurants = df[["Name", "Address", "Tags", "Price"]].values.tolist()
 
 tags = set()
 for restaurant in restaurants:
@@ -47,26 +47,42 @@ for restaurant in restaurants:
 st.sidebar.title("Select")
 filter = st.sidebar.multiselect('Type of restaurant', sorted(tags), default=None)
 
+sidebar_cols = st.sidebar.columns(3)
+
+price1 = sidebar_cols[0].checkbox("€", value=True)
+price2 = sidebar_cols[1].checkbox("€€", value=True)
+price3 = sidebar_cols[2].checkbox("€€€", value=True)
+
+prices = set()
+if price1:
+    prices.add("€")
+if price2:
+    prices.add("€€")
+if price3:
+    prices.add("€€€")
+
 for restaurant in restaurants:
+    name = restaurant[0]
+    address = restaurant[1]
+    price = restaurant[3]
 
-    tags = [entry.strip() for entry in restaurant[2].split(",")]
+    if price in prices:
+        tags = [entry.strip() for entry in restaurant[2].split(",")]
 
-    if set(filter).issubset(set(tags)):
-        name = restaurant[0]
-        address = restaurant[1]
-        tags = restaurant[2]
+        if set(filter).issubset(set(tags)):
+            tags_string = ", ".join(tags)
 
-        location = compute_location(address)
-        if location:
-            # print(f"Location for {name} at {address}: {location.latitude}, {location.longitude} .")
-            distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
+            location = compute_location(address)
+            if location:
+                # print(f"Location for {name} at {address}: {location.latitude}, {location.longitude} .")
+                distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
 
-            # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
-            html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags}</li><li>{distance_km:.2f} km</li></ul>'
-            popup = folium.Popup(html)
-            folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
-        else:
-            print(f"Cannot compute location for {name} at {address}.")
+                # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
+                html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>{distance_km:.2f} km</li></ul>'
+                popup = folium.Popup(html)
+                folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
+            else:
+                print(f"Cannot compute location for {name} at {address}.")
 
 
 st.title("Unbelievable Lunchboard")
