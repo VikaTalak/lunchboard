@@ -6,6 +6,7 @@ from geopy import distance
 from geopy.geocoders import Nominatim
 
 import pandas
+import random
 
 
 # Inspired by
@@ -63,6 +64,10 @@ if price3:
     prices.add("€€€")
 
 ratings = st.sidebar.slider("Google rating", 0.0, 5.0, (0.0, 5.0), 0.1, format="%.1f")
+
+random_selection = st.sidebar.checkbox("Random restaurant", value=False)
+if random_selection:
+    restaurants = random.sample(restaurants, 1)
 
 # Filter list of restaurants and plot markers on the map
 for restaurant in restaurants:
