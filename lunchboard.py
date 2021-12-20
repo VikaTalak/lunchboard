@@ -62,6 +62,7 @@ if price2:
     prices.add("€€")
 if price3:
     prices.add("€€€")
+prices.add("??") 
 
 ratings = st.sidebar.slider("Google rating", 0.0, 5.0, (0.0, 5.0), 0.1, format="%.1f")
 
@@ -69,11 +70,15 @@ random_selection = st.sidebar.checkbox("Random restaurant", value=False)
 if random_selection:
     restaurants = random.sample(restaurants, 1)
 
+count = 0
+
 # Filter list of restaurants and plot markers on the map
 for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
     price = restaurant[3]
+    print(price, pandas.isna(price))
+    if pandas.isna(price) : price = "??"
     rating = float(restaurant[4].replace(',', '.'))
 
     if price in prices and ratings[0] <= rating <= ratings[1]:
@@ -91,11 +96,16 @@ for restaurant in restaurants:
                 html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance_km:.2f} km</li></ul>'
                 popup = folium.Popup(html)
                 folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
+               
+                # count of restaurants
+                count += 1
             else:
                 print(f"Cannot compute location for {name} at {address}.")
 
 
 st.title("Unbelievable Lunchboard")
+
+st.text(f"Number of restaurants {count}")
 
 # call to render Folium map in Streamlit
 folium_static(m)
