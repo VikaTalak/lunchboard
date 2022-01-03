@@ -37,7 +37,7 @@ folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add
 
 # read in dataframe of restaurants
 df = read_csv("restaurants_lunch.csv")
-restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating"]].values.tolist()
+restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating", "Type"]].values.tolist()
 
 # compute list of tags
 tags = set()
@@ -48,7 +48,12 @@ for restaurant in restaurants:
         tags.add(entry.strip())
 
 st.sidebar.title("Select")
-filter = st.sidebar.multiselect('Type of restaurant', sorted(tags), default=None)
+
+selected_kind = st.radio(
+     "Type of restaurant",
+     ('Café', 'Restaurant'))
+
+filter = st.sidebar.multiselect('Category of restaurant', sorted(tags), default=None)
 
 sidebar_cols = st.sidebar.columns(3)
 
@@ -78,11 +83,12 @@ for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
     price = restaurant[3]
+    kind = restaurant[5]
     print(price, pandas.isna(price))
     if pandas.isna(price) : price = "??"
     rating = float(restaurant[4].replace(',', '.'))
 
-    if price in prices and ratings[0] <= rating <= ratings[1]:
+    if price in prices and ratings[0] <= rating <= ratings[1] and kind == selected_kind:
         tags = [entry.strip() for entry in restaurant[2].split(",")]
 
         if set(filter).issubset(set(tags)):
