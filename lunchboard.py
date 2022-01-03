@@ -18,8 +18,7 @@ geolocator = Nominatim(user_agent="lunchboard")
 @st.cache
 def compute_location(address):
 
-    normalized_address = address.replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
-
+    normalized_address = address.replace("ß", "ss")
     return geolocator.geocode(normalized_address)
 
 @st.cache
@@ -42,6 +41,8 @@ restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating"]].values.t
 
 # compute list of tags
 tags = set()
+
+
 for restaurant in restaurants:
     for entry in restaurant[2].split(","):
         tags.add(entry.strip())
@@ -101,7 +102,6 @@ for restaurant in restaurants:
                 count += 1
             else:
                 print(f"Cannot compute location for {name} at {address}.")
-
 
 st.title("Unbelievable Lunchboard")
 
