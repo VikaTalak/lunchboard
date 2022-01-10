@@ -13,13 +13,14 @@ import random
 # - https://docs.streamlit.io/en/stable/tutorial/visualize_rent_prices_with_Streamlit.html
 # - https://www.linkedin.com/pulse/rapidly-build-apps-using-streamlit-python-jack-smart
 
+# application name 
+st.title("Unbelievable Lunchboard")
+
 geolocator = Nominatim(user_agent="lunchboard")
 
 @st.cache
 def compute_location(address):
-
-    normalized_address = address.replace("ß", "ss")
-    return geolocator.geocode(normalized_address)
+    return geolocator.geocode(address)
 
 @st.cache
 def read_csv(path):
@@ -31,10 +32,6 @@ UM = (location.latitude, location.longitude)
 
 m = folium.Map(location=UM, zoom_start=15)
 
-# add marker for *UM
-popup = folium.Popup("<h4>*UM</h4>")
-folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add_to(m)
-
 # read in dataframe of restaurants
 df = read_csv("restaurants_lunch.csv")
 restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating", "Type"]].values.tolist()
@@ -42,16 +39,22 @@ restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating", "Type"]].
 # compute list of tags
 tags = set()
 
-
 for restaurant in restaurants:
     for entry in restaurant[2].split(","):
         tags.add(entry.strip())
 
 st.sidebar.title("Select")
 
-selected_kind = st.radio(
-     "Type of restaurant",
-     ('Café', 'Restaurant'))
+selected_kind = st.columns(2)
+
+kind1 = selected_kind[0].checkbox("Café", value=True)
+kind2 = selected_kind[1].checkbox("Restaurant", value=True)
+
+kinds = set()
+if kind1:
+    kinds.add("Café")
+if kind2:
+    kinds.add("Restaurant")
 
 filter = st.sidebar.multiselect('Category of restaurant', sorted(tags), default=None)
 
@@ -88,7 +91,7 @@ for restaurant in restaurants:
     if pandas.isna(price) : price = "??"
     rating = float(restaurant[4].replace(',', '.'))
 
-    if price in prices and ratings[0] <= rating <= ratings[1] and kind == selected_kind:
+    if price in prices and ratings[0] <= rating <= ratings[1] and kind in kinds:
         tags = [entry.strip() for entry in restaurant[2].split(",")]
 
         if set(filter).issubset(set(tags)):
@@ -109,9 +112,10 @@ for restaurant in restaurants:
             else:
                 print(f"Cannot compute location for {name} at {address}.")
 
-st.title("Unbelievable Lunchboard")
-
-st.text(f"Number of restaurants {count}")
+# add marker for *UM
+popup = folium.Popup("<h4>*UM</h4>")
+folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add_to(m)
+st.text(f"Number of restaurants: {count}")
 
 # call to render Folium map in Streamlit
 folium_static(m)
