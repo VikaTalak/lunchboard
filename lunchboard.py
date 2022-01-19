@@ -16,6 +16,14 @@ import random
 # application name 
 st.title("Unbelievable Lunchboard")
 
+# remove "Made with Streamlit"
+hide_menu_style = """
+        <style>
+        footer {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
 geolocator = Nominatim(user_agent="lunchboard")
 
 @st.cache
@@ -43,6 +51,13 @@ for restaurant in restaurants:
     for entry in restaurant[2].split(","):
         tags.add(entry.strip())
 
+tags_restaurant_count = dict([(x, 0) for x in tags])
+for tag in tags_restaurant_count.keys():
+    for restaurant in restaurants:
+        if tag in restaurant[2]:
+            tags_restaurant_count[tag] += 1
+
+
 st.sidebar.title("Select")
 
 selected_kind = st.columns(2)
@@ -56,8 +71,8 @@ if kind1:
 if kind2:
     kinds.add("Restaurant")
 
-filter = st.sidebar.multiselect('Category of restaurant', sorted(tags), default=None)
-
+# filter = st.sidebar.multiselect('Category of restaurant', sorted(tags), default=None)
+filter = st.sidebar.multiselect('Category of restaurant', [f'{tag} ({tags_restaurant_count[tag]})' for tag in sorted(tags)], default=None)
 sidebar_cols = st.sidebar.columns(3)
 
 price1 = sidebar_cols[0].checkbox("€", value=True)
@@ -81,13 +96,12 @@ if random_selection:
 
 count = 0
 
-# Filter list of restaurants and plot markers on the map
+#Filter list of restaurants and plot markers on the map
 for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
     price = restaurant[3]
     kind = restaurant[5]
-    print(price, pandas.isna(price))
     if pandas.isna(price) : price = "??"
     rating = float(restaurant[4].replace(',', '.'))
 
@@ -99,14 +113,14 @@ for restaurant in restaurants:
 
             location = compute_location(address)
             if location:
-                # print(f"Location for {name} at {address}: {location.latitude}, {location.longitude} .")
+                #print(f"Location for {name} at {address}: {location.latitude}, {location.longitude} .")
                 distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
 
                 # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
                 html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance_km:.2f} km</li></ul>'
                 popup = folium.Popup(html)
                 folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
-               
+            
                 # count of restaurants
                 count += 1
             else:
@@ -119,4 +133,3 @@ st.text(f"Number of restaurants: {count}")
 
 # call to render Folium map in Streamlit
 folium_static(m)
-
