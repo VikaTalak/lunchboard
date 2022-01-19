@@ -46,7 +46,6 @@ restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating", "Type"]].
 
 # compute list of tags
 tags = set()
-
 for restaurant in restaurants:
     for entry in restaurant[2].split(","):
         tags.add(entry.strip())
@@ -61,7 +60,6 @@ for tag in tags_restaurant_count.keys():
 st.sidebar.title("Select")
 
 selected_kind = st.columns(2)
-
 kind1 = selected_kind[0].checkbox("Café", value=True)
 kind2 = selected_kind[1].checkbox("Restaurant", value=True)
 
@@ -86,7 +84,7 @@ if price2:
     prices.add("€€")
 if price3:
     prices.add("€€€")
-prices.add("??") 
+prices.add("€??")
 
 ratings = st.sidebar.slider("Google rating", 0.0, 5.0, (0.0, 5.0), 0.1, format="%.1f")
 
@@ -100,10 +98,15 @@ count = 0
 for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
+<<<<<<< HEAD
     price = restaurant[3]
     kind = restaurant[5]
     if pandas.isna(price) : price = "??"
+=======
+    price = "€??" if pandas.isna(restaurant[3]) else restaurant[3]
+>>>>>>> 1af2dad7af8f861718b47da127f44fd1c07f94b8
     rating = float(restaurant[4].replace(',', '.'))
+    kind = restaurant[5]
 
     if price in prices and ratings[0] <= rating <= ratings[1] and kind in kinds:
         tags = [entry.strip() for entry in restaurant[2].split(",")]
