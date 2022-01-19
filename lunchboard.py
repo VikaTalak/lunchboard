@@ -108,13 +108,7 @@ count = 0
 for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
-<<<<<<< HEAD
-    price = restaurant[3]
-    kind = restaurant[5]
-    if pandas.isna(price) : price = "??"
-=======
     price = "€??" if pandas.isna(restaurant[3]) else restaurant[3]
->>>>>>> 1af2dad7af8f861718b47da127f44fd1c07f94b8
     rating = float(restaurant[4].replace(',', '.'))
     kind = restaurant[5]
 
