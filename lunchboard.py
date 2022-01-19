@@ -13,6 +13,16 @@ import random
 # - https://docs.streamlit.io/en/stable/tutorial/visualize_rent_prices_with_Streamlit.html
 # - https://www.linkedin.com/pulse/rapidly-build-apps-using-streamlit-python-jack-smart
 
+
+# small design hack for better usability on mobile
+# see https://github.com/randyzwitch/streamlit-folium/issues/7
+make_map_responsive = """
+ <style>
+ [title~="st.iframe"] { width: 100%}
+ </style>
+"""
+st.markdown(make_map_responsive, unsafe_allow_html=True)
+
 # application name 
 st.title("Unbelievable Lunchboard")
 
