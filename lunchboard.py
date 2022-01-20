@@ -81,8 +81,10 @@ if kind1:
 if kind2:
     kinds.add("Restaurant")
 
-# filter = st.sidebar.multiselect('Category of restaurant', sorted(tags), default=None)
-filter = st.sidebar.multiselect('Category of restaurant', [f'{tag} ({tags_restaurant_count[tag]})' for tag in sorted(tags)], default=None)
+# see https://discuss.streamlit.io/t/format-func-function-examples-please/11295
+filter = st.sidebar.multiselect('Category of restaurant', sorted(tags),
+                                format_func=lambda option: f'{option} ({tags_restaurant_count[option]})', default=None)
+
 sidebar_cols = st.sidebar.columns(3)
 
 price1 = sidebar_cols[0].checkbox("€", value=True)
