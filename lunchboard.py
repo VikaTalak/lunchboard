@@ -2,7 +2,6 @@ import streamlit as st
 from streamlit_folium import folium_static
 import folium
 
-from geopy import distance
 from geopy.geocoders import Nominatim
 
 import pandas
@@ -36,13 +35,16 @@ st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 geolocator = Nominatim(user_agent="lunchboard")
 
+
 @st.cache
 def compute_location(address):
     return geolocator.geocode(address)
 
+
 @st.cache
 def read_csv(path):
-    return pandas.read_csv(path, sep=";")
+    return pandas.read_csv(path)
+
 
 # center on *UM
 location = compute_location("Grolmanstr. 40, 10623 Berlin")
@@ -51,8 +53,8 @@ UM = (location.latitude, location.longitude)
 m = folium.Map(location=UM, zoom_start=15)
 
 # read in dataframe of restaurants
-df = read_csv("restaurants_lunch.csv")
-restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating", "Type"]].values.tolist()
+df = read_csv("restaurants.csv")
+restaurants = df[["Name", "Address", "Tags", "Price", "Google Rating", "Type", "Latitude", "Longitude", "Distance"]].values.tolist()
 
 # compute list of tags
 tags = set()
@@ -104,13 +106,16 @@ if random_selection:
 
 count = 0
 
-#Filter list of restaurants and plot markers on the map
+# Filter list of restaurants and plot markers on the map
 for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
-    price = "€??" if pandas.isna(restaurant[3]) else restaurant[3]
-    rating = float(restaurant[4].replace(',', '.'))
+    price = restaurant[3]
+    rating = restaurant[4]
     kind = restaurant[5]
+    latitude = restaurant[6]
+    longitude = restaurant[7]
+    distance = restaurant[8]
 
     if price in prices and ratings[0] <= rating <= ratings[1] and kind in kinds:
         tags = [entry.strip() for entry in restaurant[2].split(",")]
@@ -118,20 +123,13 @@ for restaurant in restaurants:
         if set(filter).issubset(set(tags)):
             tags_string = ", ".join(tags) + f", {price}"
 
-            location = compute_location(address)
-            if location:
-                #print(f"Location for {name} at {address}: {location.latitude}, {location.longitude} .")
-                distance_km = distance.distance(UM, (location.latitude, location.longitude)).km
+            # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
+            html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance:.2f} km</li></ul>'
+            popup = folium.Popup(html)
+            folium.Marker([latitude, longitude], popup=popup).add_to(m)
 
-                # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
-                html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance_km:.2f} km</li></ul>'
-                popup = folium.Popup(html)
-                folium.Marker([location.latitude, location.longitude], popup=popup).add_to(m)
-            
-                # count of restaurants
-                count += 1
-            else:
-                print(f"Cannot compute location for {name} at {address}.")
+            # count of restaurants
+            count += 1
 
 # add marker for *UM
 popup = folium.Popup("<h4>*UM</h4>")
