@@ -1,20 +1,30 @@
+import os
 import streamlit as st
+from PIL import Image
 from streamlit_folium import folium_static
 import folium
+import base64
 
 from geopy.geocoders import Nominatim
 
 import pandas
 import random
 
-
 # Inspired by
 # - https://docs.streamlit.io/en/stable/tutorial/visualize_rent_prices_with_Streamlit.html
 # - https://www.linkedin.com/pulse/rapidly-build-apps-using-streamlit-python-jack-smart
 
 
-# small design hack for better usability on mobile
+# small design hack for better usability on mobile 
 # see https://github.com/randyzwitch/streamlit-folium/issues/7
+
+img = Image.open('umRocket1.png')
+st.set_page_config(page_title='Unbelievable Lunchboard', page_icon=img)
+
+def main(): 
+    dir_root = os.path.dirname(os.path.abspath(__file__))
+    logo = Image.open(dir_root+'/umRocket1.png')
+
 make_map_responsive = """
  <style>
  [title~="st.iframe"] { width: 100%}
@@ -22,8 +32,28 @@ make_map_responsive = """
 """
 st.markdown(make_map_responsive, unsafe_allow_html=True)
 
+# logo
+img = Image.open("um.png")
+with open("um.png", "rb") as image_file:
+    base64_bytes = base64.b64encode(image_file.read())
+    base64_string = base64_bytes.decode('utf-8')
+
+logo = f"""
+ <style>
+ .css-10trblm.e16nr0p33::before{{  
+ background-image: url("data:image/png;base64,{base64_string}");
+ content:"";
+}}
+ </style>
+"""
+st.markdown(logo, unsafe_allow_html=True)
+
+#load and render a local stylesheet
+with open('style.css') as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 # application name 
-st.title("Unbelievable Lunchboard")
+st.title("believable Lunchboard")
 
 # remove "Made with Streamlit"
 hide_menu_style = """
