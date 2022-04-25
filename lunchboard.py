@@ -21,9 +21,11 @@ import random
 img = Image.open('umRocket1.png')
 st.set_page_config(page_title='Unbelievable Lunchboard', page_icon=img)
 
+
 def main(): 
     dir_root = os.path.dirname(os.path.abspath(__file__))
     logo = Image.open(dir_root+'/umRocket1.png')
+
 
 make_map_responsive = """
  <style>
@@ -48,7 +50,7 @@ logo = f"""
 """
 st.markdown(logo, unsafe_allow_html=True)
 
-#load and render a local stylesheet
+# load and render a local stylesheet
 with open('style.css') as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -133,12 +135,9 @@ prices.add("€??")
 ratings = st.sidebar.slider("Google rating", 0.0, 5.0, (0.0, 5.0), 0.1, format="%.1f")
 
 random_selection = st.sidebar.checkbox("Random restaurant", value=False)
-if random_selection:
-    restaurants = random.sample(restaurants, 1)
 
-count = 0
-
-# Filter list of restaurants and plot markers on the map
+# Filter list of restaurants
+selected_restaurants = []
 for restaurant in restaurants:
     name = restaurant[0]
     address = restaurant[1]
@@ -153,20 +152,35 @@ for restaurant in restaurants:
         tags = [entry.strip() for entry in restaurant[2].split(",")]
 
         if set(filter).issubset(set(tags)):
-            tags_string = ", ".join(tags) + f", {price}"
+            selected_restaurants.append(restaurant)
 
-            # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
-            html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance:.2f} km</li></ul>'
-            popup = folium.Popup(html)
-            folium.Marker([latitude, longitude], popup=popup).add_to(m)
+# randomly select a restaurant from selected list
+if random_selection:
+    selected_restaurants = random.sample(selected_restaurants, 1)
 
-            # count of restaurants
-            count += 1
+# generate restaurant markers
+for restaurant in selected_restaurants:
+    name = restaurant[0]
+    address = restaurant[1]
+    price = restaurant[3]
+    rating = restaurant[4]
+    kind = restaurant[5]
+    latitude = restaurant[6]
+    longitude = restaurant[7]
+    distance = restaurant[8]
+
+    tags = [entry.strip() for entry in restaurant[2].split(",")]
+    tags_string = ", ".join(tags) + f", {price}"
+
+    # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
+    html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance:.2f} km</li></ul>'
+    popup = folium.Popup(html)
+    folium.Marker([latitude, longitude], popup=popup).add_to(m)
 
 # add marker for *UM
 popup = folium.Popup("<h4>*UM</h4>")
 folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add_to(m)
-st.text(f"Number of restaurants: {count}")
+st.text(f"Number of restaurants: {len(selected_restaurants)}")
 
 # call to render Folium map in Streamlit
 folium_static(m)
