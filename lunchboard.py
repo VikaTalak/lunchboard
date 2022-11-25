@@ -18,13 +18,13 @@ import random
 # small design hack for better usability on mobile 
 # see https://github.com/randyzwitch/streamlit-folium/issues/7
 
-img = Image.open('umRocket1.png')
+img = Image.open('OBS_Small_Logo_Right_White_RGB.png')
 st.set_page_config(page_title='Unbelievable Lunchboard', page_icon=img)
 
 
 def main(): 
     dir_root = os.path.dirname(os.path.abspath(__file__))
-    logo = Image.open(dir_root+'/umRocket1.png')
+    logo = Image.open(dir_root+'/OBS_Small_Logo_Right_White_RGB.png')
 
 
 make_map_responsive = """
@@ -35,8 +35,8 @@ make_map_responsive = """
 st.markdown(make_map_responsive, unsafe_allow_html=True)
 
 # logo
-img = Image.open("um.png")
-with open("um.png", "rb") as image_file:
+img = Image.open("OBS_Small_Logo_Right_White_RGB.png")
+with open("OBS_Small_Logo_Right_White_RGB.png", "rb") as image_file:
     base64_bytes = base64.b64encode(image_file.read())
     base64_string = base64_bytes.decode('utf-8')
 
@@ -49,10 +49,6 @@ logo = f"""
  </style>
 """
 st.markdown(logo, unsafe_allow_html=True)
-
-# load and render a local stylesheet
-with open('style.css') as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # application name 
 st.title("believable Lunchboard")
