@@ -51,7 +51,7 @@ logo = f"""
 st.markdown(logo, unsafe_allow_html=True)
 
 # application name 
-st.title("believable Lunchboard")
+st.title("OBS Lunchboard")
 
 # remove "Made with Streamlit"
 hide_menu_style = """
@@ -174,7 +174,7 @@ for restaurant in selected_restaurants:
     folium.Marker([latitude, longitude], popup=popup).add_to(m)
 
 # add marker for *UM
-popup = folium.Popup("<h4>*UM</h4>")
+popup = folium.Popup("<h4>OBS</h4>")
 folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add_to(m)
 st.text(f"Number of restaurants: {len(selected_restaurants)}")
 
