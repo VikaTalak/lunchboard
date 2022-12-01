@@ -18,9 +18,8 @@ import random
 # small design hack for better usability on mobile 
 # see https://github.com/randyzwitch/streamlit-folium/issues/7
 
-img = Image.open('OBS_Small_Logo_Right_White_RGB.png')
-st.set_page_config(page_title='Unbelievable Lunchboard', page_icon=img)
-
+icon = Image.open('OBS_Small_Logo_Right_White_RGB.png')
+st.set_page_config(page_title='OBS Lunchboard', page_icon=icon)
 
 def main(): 
     dir_root = os.path.dirname(os.path.abspath(__file__))
@@ -33,22 +32,6 @@ make_map_responsive = """
  </style>
 """
 st.markdown(make_map_responsive, unsafe_allow_html=True)
-
-# logo
-img = Image.open("OBS_Small_Logo_Right_White_RGB.png")
-with open("OBS_Small_Logo_Right_White_RGB.png", "rb") as image_file:
-    base64_bytes = base64.b64encode(image_file.read())
-    base64_string = base64_bytes.decode('utf-8')
-
-logo = f"""
- <style>
- .css-10trblm.e16nr0p33::before{{  
- background-image: url("data:image/png;base64,{base64_string}");
- content:"";
-}}
- </style>
-"""
-st.markdown(logo, unsafe_allow_html=True)
 
 # application name 
 st.title("OBS Lunchboard")
@@ -68,17 +51,15 @@ geolocator = Nominatim(user_agent="lunchboard")
 def compute_location(address):
     return geolocator.geocode(address)
 
-
 @st.cache
 def read_csv(path):
     return pandas.read_csv(path)
 
-
-# center on *UM
+# center on OBS
 location = compute_location("Grolmanstr. 40, 10623 Berlin")
-UM = (location.latitude, location.longitude)
+OBS = (location.latitude, location.longitude)
 
-m = folium.Map(location=UM, zoom_start=15)
+m = folium.Map(location=OBS, zoom_start=15)
 
 # read in dataframe of restaurants
 df = read_csv("restaurants.csv")
@@ -171,12 +152,17 @@ for restaurant in selected_restaurants:
     # for the padding trick, see  https://stackoverflow.com/a/26213863/179014
     html = f'<h4>{name}</h4><ul style="padding-left: 1.2em;"><li>{tags_string}</li><li>Rating: {rating}</li><li>{distance:.2f} km</li></ul>'
     popup = folium.Popup(html)
-    folium.Marker([latitude, longitude], popup=popup).add_to(m)
+    folium.Marker([latitude, longitude], popup=popup, icon=folium.Icon(icon="cutlery", prefix='fa', color='orange')).add_to(m)
 
-# add marker for *UM
+# add marker for OBS
 popup = folium.Popup("<h4>OBS</h4>")
-folium.Marker(UM, popup=popup, icon=folium.Icon(icon="rocket", prefix='fa')).add_to(m)
+folium.Marker(OBS, popup=popup, icon=folium.Icon(icon="heart", prefix='fa', color='black')).add_to(m)
 st.text(f"Number of restaurants: {len(selected_restaurants)}")
 
 # call to render Folium map in Streamlit
 folium_static(m)
+
+# logo
+background = Image.open("OBS_Small_Logo_Right_White_RGB.png")
+col1, col2, col3 = st.columns(3)
+col2.image(background, width=250)
